@@ -9,12 +9,114 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
       body { margin: 0; background: #0a0f1e; }
+      @keyframes fadeSlideIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .itinerary-anim {
+        animation: fadeSlideIn 0.35s ease forwards;
+      }
+      @keyframes dotPulse {
+        0%, 100% { opacity: 0.4; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.3); }
+      }
     </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="text/babel">
       const { useState } = React;
+
+      const spainItinerary = [
+        {
+          day: 1,
+          title: "Arrival in Barcelona",
+          city: "Barcelona",
+          emoji: "🌅",
+          activities: [
+            { icon: "✈", text: "Meet & greet at Barcelona Airport" },
+            { icon: "🏨", text: "Transfer to hotel · freshen up & relax" },
+            { icon: "🍽", text: "Lunch at an Indian restaurant" },
+            { icon: "🗺", text: "4-hour guided city tour — La Rambla · Plaça de Catalunya · Columbus Monument · Passeig de Gràcia (photo stop at Gaudí's Casa Batlló)" },
+            { icon: "💃", text: "Traditional Flamenco Show" },
+            { icon: "🥃", text: "Dinner at an Indian restaurant · Black Label · 1 Veg + 1 Non-Veg starter" },
+            { icon: "🌙", text: "Overnight stay in Barcelona" },
+          ]
+        },
+        {
+          day: 2,
+          title: "Montserrat Excursion",
+          city: "Barcelona · Montserrat",
+          emoji: "⛰",
+          activities: [
+            { icon: "☕", text: "Breakfast at the hotel" },
+            { icon: "🚞", text: "Full-day excursion to Montserrat · one-way by cogwheel train" },
+            { icon: "⛪", text: "Visit the famous Montserrat Monastery — Benedictine retreat with breathtaking mountain landscapes" },
+            { icon: "🚡", text: "Funicular ride to the summit · panoramic views & walking trails" },
+            { icon: "🍽", text: "Lunch at a local restaurant near the monastery" },
+            { icon: "🎉", text: "Gala Dinner at an Indian restaurant (2 hrs) · Free flow of Black Label, Absolut Vodka, Bacardi Rum, Beer & Soft Drinks · 2 Veg + 2 Non-Veg snacks · DJ" },
+            { icon: "🌙", text: "Overnight stay in Barcelona" },
+          ]
+        },
+        {
+          day: 3,
+          title: "Barcelona Explorations",
+          city: "Barcelona",
+          emoji: "🏛",
+          activities: [
+            { icon: "☕", text: "Breakfast at the hotel" },
+            { icon: "⛪", text: "Visit Sagrada Família (entrance tickets included)" },
+            { icon: "🍽", text: "Lunch at an Indian restaurant" },
+            { icon: "⛵", text: "Barcelona Harbour Cruise (non-exclusive)" },
+            { icon: "🛍", text: "Free time for shopping on La Rambla" },
+            { icon: "🥃", text: "Dinner at an Indian restaurant · Black Label · 1 Veg + 1 Non-Veg starter" },
+            { icon: "🌙", text: "Overnight stay in Barcelona" },
+          ]
+        },
+        {
+          day: 4,
+          title: "Barcelona → Madrid",
+          city: "Barcelona · Madrid",
+          emoji: "🚄",
+          activities: [
+            { icon: "☕", text: "Breakfast at the hotel · check-out" },
+            { icon: "🚄", text: "Board high-speed train to Madrid" },
+            { icon: "🏨", text: "Arrival in Madrid · transfer to hotel" },
+            { icon: "🍽", text: "Lunch at an Indian restaurant" },
+            { icon: "⚽", text: "Visit Real Madrid Stadium — Santiago Bernabéu" },
+            { icon: "🌆", text: "Madrid City Orientation Tour — Puerta del Sol · Plaza Mayor · Royal Palace (photo stop) · Gran Vía" },
+            { icon: "🥃", text: "Dinner at an Indian restaurant · Black Label · 1 Veg + 1 Non-Veg starter" },
+            { icon: "🌙", text: "Overnight stay in Madrid" },
+          ]
+        },
+        {
+          day: 5,
+          title: "Toledo Day Trip",
+          city: "Madrid · Toledo",
+          emoji: "🏰",
+          activities: [
+            { icon: "☕", text: "Breakfast at the hotel" },
+            { icon: "🏰", text: "Half-day excursion to Toledo — UNESCO World Heritage City" },
+            { icon: "⛪", text: "Toledo Cathedral" },
+            { icon: "🏘", text: "Old Town · Jewish Quarter" },
+            { icon: "🚌", text: "Return to Madrid" },
+            { icon: "🥃", text: "Dinner at an Indian restaurant · Black Label · 1 Veg + 1 Non-Veg starter" },
+            { icon: "🌙", text: "Overnight stay in Madrid" },
+          ]
+        },
+        {
+          day: 6,
+          title: "Departure from Madrid",
+          city: "Madrid",
+          emoji: "🛫",
+          activities: [
+            { icon: "☕", text: "Breakfast at the hotel · check-out" },
+            { icon: "🛍", text: "Free time for last-minute shopping" },
+            { icon: "✈", text: "Transfer to Madrid Airport for departure" },
+            { icon: "✨", text: "Tour Concluded · ¡Hasta luego!" },
+          ]
+        },
+      ];
 
       const flights = [
         { id: 1, flight: "EK 503", date: "Mon, 11 May 2026", from: "Mumbai", fromCode: "BOM", to: "Dubai", toCode: "DXB", dep: "19:30", arr: "21:00", duration: "3h 00m", terminal: "T2 → T3", aircraft: "Airbus A350-900", class: "Economy (L)", baggage: "25 kg", meal: "✓ Included", status: "Confirmed", color: "#C9A84C" },
@@ -26,8 +128,107 @@
         { id: 7, flight: "EK 504", date: "Mon, 18 May 2026", from: "Dubai", fromCode: "DXB", to: "Mumbai", toCode: "BOM", dep: "03:30", arr: "08:15", duration: "3h 15m", terminal: "T3 → T2", aircraft: "Boeing 777-300ER", class: "Economy (L)", baggage: "25 kg", meal: "✓ Included", status: "Confirmed", color: "#C9A84C" },
       ];
 
+      function SpainItinerary() {
+        const [activeDay, setActiveDay] = useState(null);
+        const toggle = (d) => setActiveDay(activeDay === d ? null : d);
+
+        return (
+          <div className="itinerary-anim" style={{ borderTop: "1px solid #3a7a5a30", paddingTop: 16 }}>
+            <div style={{ fontSize: 9, letterSpacing: 4, color: "#5aaa7a", textTransform: "uppercase", marginBottom: 14, textAlign: "center" }}>Day-by-Day Itinerary</div>
+            <div style={{ position: "relative" }}>
+              {/* vertical thread */}
+              <div style={{ position: "absolute", left: 18, top: 0, bottom: 0, width: 1, background: "linear-gradient(180deg, #3a7a5a44, #5aaa7a55, #3a7a5a44)" }} />
+
+              {spainItinerary.map((day, idx) => {
+                const isOpen = activeDay === day.day;
+                const isLast = idx === spainItinerary.length - 1;
+                return (
+                  <div key={day.day} style={{ marginBottom: isLast ? 0 : 6, position: "relative" }}>
+                    {/* dot on the timeline */}
+                    <div style={{
+                      position: "absolute", left: 10, top: 16, width: 16, height: 16, borderRadius: "50%",
+                      background: isOpen ? "radial-gradient(circle, #5aaa7a, #2d7a50)" : "radial-gradient(circle, #1a3a2a, #0f2a1a)",
+                      border: `1.5px solid ${isOpen ? "#5aaa7a" : "#3a7a5a66"}`,
+                      transition: "all 0.3s ease",
+                      boxShadow: isOpen ? "0 0 10px #5aaa7a55" : "none",
+                      zIndex: 2
+                    }} />
+
+                    {/* card */}
+                    <div
+                      onClick={() => toggle(day.day)}
+                      style={{
+                        marginLeft: 36,
+                        background: isOpen ? "linear-gradient(135deg, #0d2218, #0a1c14)" : "#ffffff04",
+                        border: `1px solid ${isOpen ? "#3a7a5a66" : "#3a7a5a2a"}`,
+                        borderRadius: 10,
+                        overflow: "hidden",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      {/* header row */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px" }}>
+                        <div style={{
+                          width: 32, height: 32, borderRadius: 8,
+                          background: isOpen ? "linear-gradient(135deg, #1a4a2a, #0f3a1a)" : "linear-gradient(135deg, #152a1a, #0d1f10)",
+                          border: `1px solid ${isOpen ? "#5aaa7a55" : "#3a7a5a33"}`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 16, flexShrink: 0,
+                          transition: "all 0.3s ease"
+                        }}>{day.emoji}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                            <span style={{ fontSize: 9, letterSpacing: 3, color: "#5aaa7a", textTransform: "uppercase" }}>Day {String(day.day).padStart(2,"0")}</span>
+                            <span style={{ fontSize: 11, color: "#4a7a5a" }}>·</span>
+                            <span style={{ fontSize: 11, color: "#88aa99", letterSpacing: 0.5 }}>{day.city}</span>
+                          </div>
+                          <div style={{ fontSize: 13, color: "#c8d8c0", marginTop: 2, fontWeight: 400 }}>{day.title}</div>
+                        </div>
+                        <div style={{
+                          fontSize: 14, color: isOpen ? "#5aaa7a" : "#3a6a4a",
+                          transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                          transition: "transform 0.3s ease", lineHeight: 1
+                        }}>⌄</div>
+                      </div>
+
+                      {/* expanded activities */}
+                      {isOpen && (
+                        <div className="itinerary-anim" style={{ borderTop: "1px solid #3a7a5a22", padding: "12px 14px 14px" }}>
+                          {day.activities.map((act, i) => (
+                            <div key={i} style={{
+                              display: "flex", gap: 10, alignItems: "flex-start",
+                              padding: "6px 0",
+                              borderBottom: i < day.activities.length - 1 ? "1px solid #3a7a5a15" : "none"
+                            }}>
+                              <div style={{
+                                width: 24, height: 24, borderRadius: 6, flexShrink: 0,
+                                background: "linear-gradient(135deg, #1a3a22, #0f2a18)",
+                                border: "1px solid #3a7a5a30",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: 12, marginTop: 1
+                              }}>{act.icon}</div>
+                              <div style={{ fontSize: 12, color: "#a8c4a8", lineHeight: 1.55, flex: 1 }}>{act.text}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div style={{ textAlign: "center", padding: "4px 0", fontSize: 8, color: "#2a5a3a99", letterSpacing: 2 }}>
+                        {isOpen ? "TAP TO COLLAPSE" : "TAP FOR DETAILS"}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
       function Itinerary() {
         const [expanded, setExpanded] = useState(null);
+        const [stayOpen, setStayOpen] = useState(false);
         const toggle = (id) => setExpanded(expanded === id ? null : id);
 
         return (
@@ -44,19 +245,81 @@
             <div style={{ maxWidth: 620, margin: "0 auto", position: "relative" }}>
               <div style={{ position: "absolute", left: 28, top: 0, bottom: 0, width: 1, background: "linear-gradient(180deg, #C9A84C33, #C9A84C55, #C9A84C33)", zIndex: 0 }} />
               {flights.map((item) => {
-                if (item.type === "layover" || item.type === "stay") {
-                  const isStay = item.type === "stay";
+                if (item.type === "layover") {
                   return (
                     <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 20, padding: "16px 0", position: "relative", zIndex: 1 }}>
-                      <div style={{ width: 56, height: 56, borderRadius: "50%", background: isStay ? "linear-gradient(135deg, #1a3a2a, #0f2a1a)" : "linear-gradient(135deg, #1a2a3a, #0f1a2a)", border: `1px solid ${isStay ? "#3a7a5a44" : "#C9A84C44"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>{isStay ? "🇪🇸" : "⏱"}</div>
-                      <div style={{ flex: 1, background: isStay ? "linear-gradient(135deg, #0f1f170a, #1a3a2a18)" : "#ffffff06", border: `1px solid ${isStay ? "#3a7a5a30" : "#C9A84C22"}`, borderRadius: 10, padding: "12px 18px" }}>
+                      <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, #1a2a3a, #0f1a2a)", border: "1px solid #C9A84C44", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>⏱</div>
+                      <div style={{ flex: 1, background: "#ffffff06", border: "1px solid #C9A84C22", borderRadius: 10, padding: "12px 18px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <div>
-                            <div style={{ fontSize: 10, letterSpacing: 4, color: isStay ? "#5aaa7a" : "#C9A84C", textTransform: "uppercase", marginBottom: 4 }}>{isStay ? "Spain Stay" : "Layover"}</div>
+                            <div style={{ fontSize: 10, letterSpacing: 4, color: "#C9A84C", textTransform: "uppercase", marginBottom: 4 }}>Layover</div>
                             <div style={{ fontSize: 15, color: "#d4c9a8" }}>{item.location}</div>
                             <div style={{ fontSize: 11, color: "#556677", marginTop: 4 }}>{item.note}</div>
                           </div>
-                          <div style={{ fontSize: 20, fontWeight: 300, color: isStay ? "#5aaa7a" : "#C9A84C", letterSpacing: -0.5 }}>{item.duration}</div>
+                          <div style={{ fontSize: 20, fontWeight: 300, color: "#C9A84C", letterSpacing: -0.5 }}>{item.duration}</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (item.type === "stay") {
+                  return (
+                    <div key={item.id} style={{ display: "flex", gap: 20, padding: "8px 0", position: "relative", zIndex: 1 }}>
+                      {/* circle icon */}
+                      <div
+                        onClick={() => setStayOpen(!stayOpen)}
+                        style={{
+                          width: 56, height: 56, borderRadius: "50%",
+                          background: stayOpen ? "linear-gradient(135deg, #1a3a2a, #0d2a18)" : "linear-gradient(135deg, #1a3a2a, #0f2a1a)",
+                          border: `1px solid ${stayOpen ? "#5aaa7a88" : "#3a7a5a44"}`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 22, flexShrink: 0, cursor: "pointer",
+                          boxShadow: stayOpen ? "0 0 20px #3a7a5a44" : "none",
+                          transition: "all 0.3s ease"
+                        }}
+                      >🇪🇸</div>
+
+                      {/* card */}
+                      <div
+                        style={{
+                          flex: 1,
+                          background: stayOpen ? "linear-gradient(135deg, #0f1f17, #0a1a10)" : "linear-gradient(135deg, #0f1f170a, #1a3a2a18)",
+                          border: `1px solid ${stayOpen ? "#3a7a5a55" : "#3a7a5a30"}`,
+                          borderRadius: 12, overflow: "hidden",
+                          cursor: "pointer", transition: "all 0.3s ease", marginBottom: 8
+                        }}
+                        onClick={() => setStayOpen(!stayOpen)}
+                      >
+                        {/* top summary row */}
+                        <div style={{ padding: "16px 20px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div>
+                              <div style={{ fontSize: 10, letterSpacing: 4, color: "#5aaa7a", textTransform: "uppercase", marginBottom: 4 }}>Spain Stay</div>
+                              <div style={{ fontSize: 15, color: "#d4c9a8" }}>{item.location}</div>
+                              <div style={{ display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
+                                {["Barcelona", "Montserrat", "Toledo", "Madrid"].map(c => (
+                                  <span key={c} style={{ fontSize: 9, letterSpacing: 2, color: "#4a8a6a", background: "#3a7a5a18", border: "1px solid #3a7a5a33", borderRadius: 4, padding: "2px 7px", textTransform: "uppercase" }}>{c}</span>
+                                ))}
+                              </div>
+                              <div style={{ fontSize: 11, color: "#556677", marginTop: 6 }}>{item.note}</div>
+                            </div>
+                            <div style={{ textAlign: "right" }}>
+                              <div style={{ fontSize: 22, fontWeight: 300, color: "#5aaa7a", letterSpacing: -0.5 }}>{item.duration}</div>
+                              <div style={{ fontSize: 9, color: "#3a6a4a", letterSpacing: 2, marginTop: 4 }}>6 DAYS</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* expanded itinerary */}
+                        {stayOpen && (
+                          <div style={{ padding: "0 16px 16px" }} onClick={e => e.stopPropagation()}>
+                            <SpainItinerary />
+                          </div>
+                        )}
+
+                        <div style={{ textAlign: "center", padding: "6px", fontSize: 9, color: "#2a5a3a99", letterSpacing: 2 }}>
+                          {stayOpen ? "TAP TO COLLAPSE" : "TAP FOR ITINERARY"}
                         </div>
                       </div>
                     </div>
