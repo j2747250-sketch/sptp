@@ -211,35 +211,95 @@
         );
       }
 
-      // ─── Weather Widget ──────────────────────────────────────────────────────────
-      const weatherData = {
-        barcelona: {
-          city: "Barcelona",
-          flag: "🌞",
-          current: { temp: 18, condition: "Sunny", icon: "☀️" },
-          forecast: [
-            { day: "Wed", high: 19, rain: 20, icon: "🌤" },
-            { day: "Thu", high: 20, rain: 15, icon: "🌤" },
-            { day: "Fri", high: 19, rain: 35, icon: "🌦" },
-            { day: "Sat", high: 19, rain: 10, icon: "⛅" },
-            { day: "Sun", high: 18, rain: 40, icon: "🌦" },
-          ]
-        },
-        madrid: {
-          city: "Madrid",
-          flag: "🌦",
-          current: { temp: 17, condition: "Light Rain", icon: "🌧️" },
-          forecast: [
-            { day: "Wed", high: 19, rain: 70, icon: "🌧" },
-            { day: "Thu", high: 21, rain: 15, icon: "🌤" },
-            { day: "Fri", high: 24, rain: 10, icon: "☀️" },
-            { day: "Sat", high: 18, rain: 65, icon: "🌧" },
-            { day: "Sun", high: 21, rain: 20, icon: "🌤" },
-          ]
-        }
+      // ─── Weather Widget (Live via Open-Meteo) ────────────────────────────────────
+      const WMO_MAP = {
+        0:  { icon: "☀️",  label: "Clear Sky" },
+        1:  { icon: "🌤",  label: "Mainly Clear" },
+        2:  { icon: "⛅",  label: "Partly Cloudy" },
+        3:  { icon: "☁️",  label: "Overcast" },
+        45: { icon: "🌫",  label: "Foggy" },
+        48: { icon: "🌫",  label: "Icy Fog" },
+        51: { icon: "🌦",  label: "Light Drizzle" },
+        53: { icon: "🌦",  label: "Drizzle" },
+        55: { icon: "🌧",  label: "Heavy Drizzle" },
+        61: { icon: "🌧",  label: "Light Rain" },
+        63: { icon: "🌧",  label: "Moderate Rain" },
+        65: { icon: "🌧",  label: "Heavy Rain" },
+        71: { icon: "🌨",  label: "Light Snow" },
+        73: { icon: "❄️",  label: "Snow" },
+        75: { icon: "❄️",  label: "Heavy Snow" },
+        80: { icon: "🌦",  label: "Rain Showers" },
+        81: { icon: "🌧",  label: "Rain Showers" },
+        82: { icon: "🌧",  label: "Heavy Showers" },
+        85: { icon: "🌨",  label: "Snow Showers" },
+        95: { icon: "⛈",  label: "Thunderstorm" },
+        96: { icon: "⛈",  label: "Thunderstorm" },
+        99: { icon: "⛈",  label: "Heavy Thunderstorm" },
       };
 
-      function WeatherCard({ data }) {
+      function getWmo(code) {
+        return WMO_MAP[code] || { icon: "🌡", label: "Unknown" };
+      }
+
+      const CITIES = [
+        { key: "barcelona", name: "Barcelona", lat: 41.3888, lon: 2.1590 },
+        { key: "madrid",    name: "Madrid",    lat: 40.4168, lon: -3.7038 },
+      ];
+
+      async function fetchWeather(lat, lon) {
+        const url =
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+          `&current_weather=true` +
+          `&daily=weathercode,temperature_2m_max,precipitation_probability_max` +
+          `&timezone=Europe%2FMadrid&forecast_days=5`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Weather fetch failed");
+        return res.json();
+      }
+
+      function WeatherCard({ cityMeta }) {
+        const [data, setData] = useState(null);
+        const [lastUpdated, setLastUpdated] = useState(null);
+        const [error, setError] = useState(false);
+
+        const load = () => {
+          fetchWeather(cityMeta.lat, cityMeta.lon)
+            .then(json => {
+              const cw = json.current_weather;
+              const daily = json.daily;
+              const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+              const forecast = daily.time.map((dateStr, i) => {
+                const d = new Date(dateStr + "T12:00:00");
+                return {
+                  day: dayNames[d.getDay()],
+                  high: Math.round(daily.temperature_2m_max[i]),
+                  rain: daily.precipitation_probability_max[i] ?? 0,
+                  ...getWmo(daily.weathercode[i]),
+                };
+              });
+
+              setData({
+                temp: Math.round(cw.temperature),
+                ...getWmo(cw.weathercode),
+                forecast,
+              });
+              setLastUpdated(new Date());
+              setError(false);
+            })
+            .catch(() => setError(true));
+        };
+
+        useEffect(() => {
+          load();
+          const interval = setInterval(load, 10 * 60 * 1000); // refresh every 10 min
+          return () => clearInterval(interval);
+        }, []);
+
+        const timeStr = lastUpdated
+          ? lastUpdated.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+          : null;
+
         return (
           <div className="weather-card" style={{
             flex: 1, minWidth: 0,
@@ -256,41 +316,73 @@
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
-                  <div style={{ fontSize: 9, letterSpacing: 4, color: "#5aaa7a", textTransform: "uppercase", marginBottom: 4 }}>Live Weather</div>
-                  <div style={{ fontSize: 15, color: "#d4c9a8", fontWeight: 400 }}>🇪🇸 {data.city}</div>
+                  <div style={{ fontSize: 9, letterSpacing: 4, color: "#5aaa7a", textTransform: "uppercase", marginBottom: 4 }}>
+                    Live Weather
+                  </div>
+                  <div style={{ fontSize: 15, color: "#d4c9a8", fontWeight: 400 }}>🇪🇸 {cityMeta.name}</div>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 28, lineHeight: 1, animation: "float 3s ease-in-out infinite" }}>{data.current.icon}</div>
-                  <div style={{ fontSize: "clamp(20px,5vw,26px)", fontWeight: 300, color: "#f5edd8", lineHeight: 1, marginTop: 4 }}>{data.current.temp}°C</div>
+                  {data ? (
+                    <>
+                      <div style={{ fontSize: 28, lineHeight: 1, animation: "float 3s ease-in-out infinite" }}>{data.icon}</div>
+                      <div style={{ fontSize: "clamp(20px,5vw,26px)", fontWeight: 300, color: "#f5edd8", lineHeight: 1, marginTop: 4 }}>{data.temp}°C</div>
+                    </>
+                  ) : error ? (
+                    <div style={{ fontSize: 20 }}>⚠️</div>
+                  ) : (
+                    <div style={{ fontSize: 20, animation: "clockPulse 1s infinite" }}>⏳</div>
+                  )}
                 </div>
               </div>
-              <div style={{ fontSize: 10, color: "#5aaa7a99", marginTop: 4, letterSpacing: 1 }}>{data.current.condition}</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <div style={{ fontSize: 10, color: "#5aaa7a99", letterSpacing: 1 }}>
+                  {data ? data.label : error ? "Unavailable" : "Fetching…"}
+                </div>
+                {timeStr && (
+                  <div style={{ fontSize: 8, color: "#2a5a3a", letterSpacing: 1 }}>↻ {timeStr}</div>
+                )}
+              </div>
             </div>
 
             {/* 5-day forecast */}
             <div style={{ padding: "10px 12px" }}>
               <div style={{ fontSize: 8, letterSpacing: 3, color: "#3a6a4a", textTransform: "uppercase", marginBottom: 8 }}>5-Day Forecast</div>
-              <div style={{ display: "flex", gap: 4 }}>
-                {data.forecast.map((f, i) => (
-                  <div key={i} style={{
-                    flex: 1, textAlign: "center",
-                    padding: "7px 2px",
-                    background: i === 0 ? "#3a7a5a18" : "#ffffff04",
-                    border: `1px solid ${i === 0 ? "#3a7a5a44" : "#3a7a5a11"}`,
-                    borderRadius: 8,
-                  }}>
-                    <div style={{ fontSize: 8, color: "#5aaa7a88", letterSpacing: 1, marginBottom: 4 }}>{f.day}</div>
-                    <div style={{ fontSize: 14, marginBottom: 3 }}>{f.icon}</div>
-                    <div style={{ fontSize: 11, color: "#c8d8c0", fontWeight: 500 }}>{f.high}°</div>
-                    <div style={{
-                      marginTop: 4, height: 2, borderRadius: 1,
-                      background: `linear-gradient(90deg, #5aaa7a, #c0606050)`,
-                      opacity: f.rain / 100,
+              {data ? (
+                <div style={{ display: "flex", gap: 4 }}>
+                  {data.forecast.map((f, i) => (
+                    <div key={i} style={{
+                      flex: 1, textAlign: "center",
+                      padding: "7px 2px",
+                      background: i === 0 ? "#3a7a5a18" : "#ffffff04",
+                      border: `1px solid ${i === 0 ? "#3a7a5a44" : "#3a7a5a11"}`,
+                      borderRadius: 8,
+                    }}>
+                      <div style={{ fontSize: 8, color: "#5aaa7a88", letterSpacing: 1, marginBottom: 4 }}>{f.day}</div>
+                      <div style={{ fontSize: 14, marginBottom: 3 }}>{f.icon}</div>
+                      <div style={{ fontSize: 11, color: "#c8d8c0", fontWeight: 500 }}>{f.high}°</div>
+                      <div style={{
+                        marginTop: 4, height: 2, borderRadius: 1,
+                        background: `linear-gradient(90deg, #5aaa7a, #c0606050)`,
+                        opacity: f.rain / 100,
+                      }} />
+                      <div style={{ fontSize: 7, color: "#3a6a4a", marginTop: 2 }}>{f.rain}%</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ display: "flex", gap: 4 }}>
+                  {[0,1,2,3,4].map(i => (
+                    <div key={i} style={{
+                      flex: 1, height: 80,
+                      background: "#3a7a5a0a",
+                      border: "1px solid #3a7a5a11",
+                      borderRadius: 8,
+                      animation: "clockPulse 1.5s ease-in-out infinite",
+                      animationDelay: `${i * 0.15}s`,
                     }} />
-                    <div style={{ fontSize: 7, color: "#3a6a4a", marginTop: 2 }}>{f.rain}%</div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         );
@@ -303,11 +395,10 @@
               🌤 Weather in Spain
             </div>
             <div style={{ display: "flex", gap: 12 }}>
-              <WeatherCard data={weatherData.barcelona} />
-              <WeatherCard data={weatherData.madrid} />
+              {CITIES.map(c => <WeatherCard key={c.key} cityMeta={c} />)}
             </div>
             <div style={{ textAlign: "center", marginTop: 8, fontSize: 9, color: "#2a4a3a", letterSpacing: 1 }}>
-              Current conditions · Celsius · Updated live
+              Live data · Open-Meteo · Refreshes every 10 min
             </div>
           </div>
         );
