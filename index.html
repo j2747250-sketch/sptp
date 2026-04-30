@@ -671,8 +671,128 @@
         );
       }
 
+      // ─── RupeeResolve Floating Button ────────────────────────────────────────────
+      const RR_LOGO = "https://raw.githubusercontent.com/j2747250-sketch/rupee-resolve-assets/refs/heads/main/logo_RR.png";
+
+      function RupeeResolveButton() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div style={{ position: "fixed", bottom: 24, right: 20, zIndex: 9999, display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+
+            {/* Popup card */}
+            {open && (
+              <div style={{
+                marginBottom: 14,
+                width: 270,
+                background: "linear-gradient(145deg, #071a10, #0c2218)",
+                border: "1px solid #1aaa6a55",
+                borderRadius: 16,
+                boxShadow: "0 8px 40px #00000088, 0 0 0 1px #1aaa6a22",
+                overflow: "hidden",
+                animation: "fadeSlideIn 0.25s ease forwards",
+              }}>
+                {/* Card header */}
+                <div style={{
+                  padding: "14px 16px 10px",
+                  background: "linear-gradient(135deg, #0d2e1c, #071a10)",
+                  borderBottom: "1px solid #1aaa6a22",
+                  display: "flex", alignItems: "center", gap: 10,
+                }}>
+                  <img src={RR_LOGO} alt="RupeeResolve" style={{ width: 36, height: 36, borderRadius: 8, objectFit: "cover", border: "1px solid #1aaa6a44" }} />
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#3dd68c", letterSpacing: 0.5 }}>RupeeResolve</div>
+                    <div style={{ fontSize: 9, color: "#2a7a50", letterSpacing: 1, textTransform: "uppercase" }}>Financial Dispute Experts</div>
+                  </div>
+                  <button
+                    onClick={() => setOpen(false)}
+                    style={{ marginLeft: "auto", background: "none", border: "none", color: "#3a6a50", fontSize: 16, cursor: "pointer", lineHeight: 1, padding: 0 }}>✕</button>
+                </div>
+
+                {/* Card body */}
+                <div style={{ padding: "14px 16px" }}>
+                  <div style={{ fontSize: 13, color: "#c0dcc8", lineHeight: 1.65, marginBottom: 14 }}>
+                    Having an issue with your{" "}
+                    {["🏦 Bank", "📊 CIBIL", "💳 EMI", "🛡 Insurance", "⚖️ Dispute"].map((tag, i) => (
+                      <span key={i} style={{
+                        display: "inline-block", fontSize: 10, color: "#3dd68c",
+                        background: "#1aaa6a18", border: "1px solid #1aaa6a33",
+                        borderRadius: 5, padding: "1px 7px", margin: "2px 3px 2px 0",
+                        letterSpacing: 0.3,
+                      }}>{tag}</span>
+                    ))}
+                    {" "}or any financial complaint?
+                  </div>
+
+                  <a
+                    href="https://www.rupeeresolve.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "block", textAlign: "center",
+                      background: "linear-gradient(135deg, #1aaa6a, #0e8a50)",
+                      color: "#fff", fontFamily: "Georgia, serif",
+                      fontSize: 12, fontWeight: 600, letterSpacing: 0.5,
+                      padding: "11px 16px", borderRadius: 10,
+                      textDecoration: "none",
+                      boxShadow: "0 4px 18px #1aaa6a44",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseOver={e => e.currentTarget.style.background = "linear-gradient(135deg, #22cc7a, #1aaa6a)"}
+                    onMouseOut={e => e.currentTarget.style.background = "linear-gradient(135deg, #1aaa6a, #0e8a50)"}
+                  >
+                    Get Your Complaint Resolved →
+                  </a>
+
+                  <div style={{ textAlign: "center", marginTop: 8, fontSize: 8, color: "#1a5a35", letterSpacing: 1 }}>
+                    rupeeresolve.com
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Floating button */}
+            <div style={{ position: "relative" }}>
+              {/* Pulse ring */}
+              {!open && (
+                <div style={{
+                  position: "absolute", inset: -4,
+                  borderRadius: "50%",
+                  border: "2px solid #1aaa6a",
+                  animation: "dotPulse 2s ease-in-out infinite",
+                  pointerEvents: "none",
+                }} />
+              )}
+              <button
+                onClick={() => setOpen(o => !o)}
+                title="Need help with a financial complaint?"
+                style={{
+                  width: 56, height: 56,
+                  borderRadius: "50%",
+                  padding: 0, border: "2px solid #1aaa6a88",
+                  cursor: "pointer", overflow: "hidden",
+                  background: "#000",
+                  boxShadow: open
+                    ? "0 0 0 3px #1aaa6a55, 0 8px 30px #00000099"
+                    : "0 4px 20px #00000077, 0 0 0 1px #1aaa6a33",
+                  transition: "all 0.25s ease",
+                  transform: open ? "scale(1.08)" : "scale(1)",
+                }}
+              >
+                <img src={RR_LOGO} alt="RupeeResolve" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              </button>
+            </div>
+          </div>
+        );
+      }
+
       function App() {
-        return <Itinerary />;
+        return (
+          <>
+            <Itinerary />
+            <RupeeResolveButton />
+          </>
+        );
       }
 
       ReactDOM.createRoot(document.getElementById("root")).render(<App />);
