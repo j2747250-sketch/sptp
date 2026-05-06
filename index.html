@@ -143,8 +143,8 @@
 
       const flights = [
         { id: 1, flight: "EK 503", date: "Mon, 11 May 2026", from: "Mumbai", fromCode: "BOM", to: "Dubai", toCode: "DXB", dep: "19:30", arr: "21:00", duration: "3h 00m", terminal: "T2 → T3", aircraft: "Airbus A350-900", class: "Economy (L)", baggage: "25 kg", meal: "✓ Included", status: "Confirmed", color: "#C9A84C" },
-        { id: 2, type: "layover", location: "Dubai (DXB)", duration: "5h 35m", note: "Terminal 3 — Late night connection" },
-        { id: 3, flight: "EK 255", date: "Tue, 12 May 2026", from: "Dubai", fromCode: "DXB", to: "Barcelona", toCode: "BCN", dep: "02:35", depOld: "03:25", arr: "08:35", duration: "7h 10m", terminal: "T3 → T1", aircraft: "Boeing 777-200LR", class: "Economy (L)", baggage: "25 kg", meal: "✓ Included", status: "Confirmed", changed: true, color: "#C9A84C" },
+        { id: 2, type: "layover", location: "Dubai (DXB)", duration: "5h 35m", durationOld: "6h 25m", changed: true, note: "Terminal 3 — Late night connection" },
+        { id: 3, flight: "EK 255", date: "Tue, 12 May 2026", from: "Dubai", fromCode: "DXB", to: "Barcelona", toCode: "BCN", dep: "02:35", depOld: "03:25", arr: "08:35", duration: "8h 00m", durationOld: "7h 10m", terminal: "T3 → T1", aircraft: "Boeing 777-200LR", class: "Economy (L)", baggage: "25 kg", meal: "✓ Included", status: "Confirmed", changed: true, color: "#C9A84C" },
         { id: 4, type: "stay", location: "Spain", duration: "~5 Days", note: "Barcelona → Madrid" },
         { id: 5, flight: "EK 142", date: "Sun, 17 May 2026", from: "Madrid", fromCode: "MAD", to: "Dubai", toCode: "DXB", dep: "15:25", arr: "00:35+1", duration: "7h 10m", terminal: "T4S → T3", aircraft: "Airbus A380-800", class: "Economy (L)", baggage: "25 kg", meal: "✓ Included", status: "Confirmed", color: "#C9A84C" },
         { id: 6, type: "layover", location: "Dubai (DXB)", duration: "2h 55m", note: "Terminal 3 — Short overnight connection" },
@@ -538,15 +538,28 @@
                 if (item.type === "layover") {
                   return (
                     <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 20, padding: "16px 0", position: "relative", zIndex: 1 }}>
-                      <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, #1a2a3a, #0f1a2a)", border: "1px solid #C9A84C44", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>⏱</div>
-                      <div style={{ flex: 1, background: "#ffffff06", border: "1px solid #C9A84C22", borderRadius: 10, padding: "12px 18px" }}>
+                      <div style={{ width: 56, height: 56, borderRadius: "50%", background: item.changed ? "linear-gradient(135deg, #2a1a1a, #3a0f0f)" : "linear-gradient(135deg, #1a2a3a, #0f1a2a)", border: `1px solid ${item.changed ? "#e74c3c66" : "#C9A84C44"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0, transition: "all 0.4s ease" }}>⏱</div>
+                      <div style={{ flex: 1, background: item.changed ? "linear-gradient(135deg, #1a0d0d, #150909)" : "#ffffff06", border: `1px solid ${item.changed ? "#e74c3c33" : "#C9A84C22"}`, borderRadius: 10, padding: "12px 18px", transition: "all 0.4s ease" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <div>
-                            <div style={{ fontSize: 10, letterSpacing: 4, color: "#C9A84C", textTransform: "uppercase", marginBottom: 4 }}>Layover</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                              <div style={{ fontSize: 10, letterSpacing: 4, color: "#C9A84C", textTransform: "uppercase" }}>Layover</div>
+                              {item.changed && (
+                                <div style={{ fontSize: 8, letterSpacing: 1.5, color: "#fff", background: "linear-gradient(135deg, #c0392b, #e74c3c)", borderRadius: 4, padding: "2px 6px", textTransform: "uppercase", fontWeight: 700, animation: "dotPulse 2s ease-in-out infinite" }}>⚠ Updated</div>
+                              )}
+                            </div>
                             <div style={{ fontSize: 15, color: "#d4c9a8" }}>{item.location}</div>
                             <div style={{ fontSize: 11, color: "#556677", marginTop: 4 }}>{item.note}</div>
                           </div>
-                          <div style={{ fontSize: 20, fontWeight: 300, color: "#C9A84C", letterSpacing: -0.5 }}>{item.duration}</div>
+                          <div style={{ textAlign: "right" }}>
+                            {item.changed && item.durationOld && (
+                              <div style={{ fontSize: 13, fontWeight: 300, color: "#667788", letterSpacing: -0.5, textDecoration: "line-through", marginBottom: 3 }}>{item.durationOld}</div>
+                            )}
+                            <div style={{ fontSize: 20, fontWeight: 300, color: item.changed ? "#e74c3c" : "#C9A84C", letterSpacing: -0.5, transition: "color 0.4s ease" }}>{item.duration}</div>
+                            {item.changed && (
+                              <div style={{ fontSize: 8, color: "#e74c3c99", letterSpacing: 1, marginTop: 3 }}>−50 MIN</div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -640,7 +653,14 @@
                             <div style={{ fontSize: 10, color: "#556677" }}>{item.from}</div>
                           </div>
                           <div style={{ flex: 1, textAlign: "center" }}>
-                            <div style={{ fontSize: 10, color: "#7a8899", marginBottom: 4 }}>{item.duration}</div>
+                            {item.changed && item.durationOld ? (
+                              <div style={{ marginBottom: 4 }}>
+                                <div style={{ fontSize: 9, color: "#667788", textDecoration: "line-through", letterSpacing: 1 }}>{item.durationOld}</div>
+                                <div style={{ fontSize: 10, color: "#e74c3c", letterSpacing: 1 }}>{item.duration}</div>
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: 10, color: "#7a8899", marginBottom: 4 }}>{item.duration}</div>
+                            )}
                             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                               <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, #C9A84C44, #C9A84C88)" }} />
                               <span style={{ color: "#C9A84C", fontSize: 12 }}>›</span>
