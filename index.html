@@ -144,7 +144,7 @@
       const flights = [
         { id: 1, flight: "EK 503", date: "Mon, 11 May 2026", from: "Mumbai", fromCode: "BOM", to: "Dubai", toCode: "DXB", dep: "19:30", arr: "21:00", duration: "3h 00m", terminal: "T2 → T3", aircraft: "Airbus A350-900", class: "Economy (L)", baggage: "25 kg", meal: "✓ Included", status: "Confirmed", color: "#C9A84C" },
         { id: 2, type: "layover", location: "Dubai (DXB)", duration: "6h 25m", note: "Terminal 3 — Late night connection" },
-        { id: 3, flight: "EK 255", date: "Tue, 12 May 2026", from: "Dubai", fromCode: "DXB", to: "Barcelona", toCode: "BCN", dep: "03:25", arr: "08:35", duration: "7h 10m", terminal: "T3 → T1", aircraft: "Boeing 777-200LR", class: "Economy (L)", baggage: "25 kg", meal: "✓ Included", status: "Confirmed", color: "#C9A84C" },
+        { id: 3, flight: "EK 255", date: "Tue, 12 May 2026", from: "Dubai", fromCode: "DXB", to: "Barcelona", toCode: "BCN", dep: "02:35", depOld: "03:25", arr: "08:35", duration: "7h 10m", terminal: "T3 → T1", aircraft: "Boeing 777-200LR", class: "Economy (L)", baggage: "25 kg", meal: "✓ Included", status: "Confirmed", changed: true, color: "#C9A84C" },
         { id: 4, type: "stay", location: "Spain", duration: "~5 Days", note: "Barcelona → Madrid" },
         { id: 5, flight: "EK 142", date: "Sun, 17 May 2026", from: "Madrid", fromCode: "MAD", to: "Dubai", toCode: "DXB", dep: "15:25", arr: "00:35+1", duration: "7h 10m", terminal: "T4S → T3", aircraft: "Airbus A380-800", class: "Economy (L)", baggage: "25 kg", meal: "✓ Included", status: "Confirmed", color: "#C9A84C" },
         { id: 6, type: "layover", location: "Dubai (DXB)", duration: "2h 55m", note: "Terminal 3 — Short overnight connection" },
@@ -623,11 +623,19 @@
                             <span style={{ fontSize: 10, letterSpacing: 4, color: "#C9A84C", textTransform: "uppercase" }}>{item.flight}</span>
                             <div style={{ fontSize: 11, color: "#55667788", marginTop: 2 }}>{item.date}</div>
                           </div>
-                          <div style={{ fontSize: 11, color: "#5a8060", letterSpacing: 1 }}>● {item.status}</div>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                            <div style={{ fontSize: 11, color: "#5a8060", letterSpacing: 1 }}>● {item.status}</div>
+                            {item.changed && (
+                              <div style={{ fontSize: 9, letterSpacing: 2, color: "#fff", background: "linear-gradient(135deg, #c0392b, #e74c3c)", borderRadius: 4, padding: "2px 7px", textTransform: "uppercase", fontWeight: 700, animation: "dotPulse 2s ease-in-out infinite" }}>⚠ Schedule Changed</div>
+                            )}
+                          </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                           <div style={{ textAlign: "left" }}>
-                            <div style={{ fontSize: 26, fontWeight: 300, color: "#f0e8d0", lineHeight: 1 }}>{item.dep}</div>
+                            {item.changed && item.depOld && (
+                              <div style={{ fontSize: 13, fontWeight: 300, color: "#667788", lineHeight: 1, textDecoration: "line-through", marginBottom: 2 }}>{item.depOld}</div>
+                            )}
+                            <div style={{ fontSize: 26, fontWeight: 300, color: item.changed ? "#e74c3c" : "#f0e8d0", lineHeight: 1 }}>{item.dep}</div>
                             <div style={{ fontSize: 12, color: "#8899aa", marginTop: 4 }}>{item.fromCode}</div>
                             <div style={{ fontSize: 10, color: "#556677" }}>{item.from}</div>
                           </div>
